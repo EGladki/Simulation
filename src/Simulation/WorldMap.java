@@ -1,8 +1,8 @@
-import entity.Entity;
+package Simulation;
 
-import java.util.ArrayList;
+import Simulation.entity.Entity;
+
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class WorldMap {
@@ -45,7 +45,7 @@ public class WorldMap {
 
     public boolean isCellEmpty(Coordinates coordinates) {
         if (isCoordinateValid(coordinates)) {
-        return !entities.containsKey(coordinates);
+            return !entities.containsKey(coordinates);
         }
         throw new IllegalArgumentException("Invalid coordinates");
     }
@@ -65,13 +65,9 @@ public class WorldMap {
 
     public Entity getEntity(Coordinates coordinates) {
         if (isCoordinateValid(coordinates)) {
-        return entities.get(coordinates);
-    }
+            return entities.get(coordinates);
+        }
         throw new IllegalArgumentException("Invalid coordinates");
-    }
-
-    public List<Entity> getEntities() {
-        return new ArrayList<>(entities.values());
     }
 
     public boolean isCoordinateValid(Coordinates coordinates) {

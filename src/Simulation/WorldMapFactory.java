@@ -1,7 +1,4 @@
-import entity.Entity;
-import entity.Grass;
-import entity.Herbivore;
-import entity.Predator;
+package Simulation;
 
 public class WorldMapFactory {
 
@@ -12,9 +9,5 @@ public class WorldMapFactory {
     public static WorldMap createCustomWorldMap(int width, int height) {
         return new WorldMap(width, height);
     }
-
-
-
-
 
 }
