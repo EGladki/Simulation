@@ -4,7 +4,6 @@ import Simulation.Coordinates;
 import Simulation.WorldMap;
 import Simulation.entity.*;
 
-
 public class InitActions {
     private final WorldMap worldMap;
 
@@ -13,11 +12,11 @@ public class InitActions {
     }
 
     public void populateWithCreatures() {
-        fillWith(new Herbivore(), 1);
+        fillWith(new Herbivore(), 3);
         fillWith(new Predator(), 1);
-        fillWith(new Grass(), 0);
-        fillWith(new Tree(), 0);
-        fillWith(new Rock(), 0);
+        fillWith(new Grass(), 10);
+        fillWith(new Tree(), 5);
+        fillWith(new Rock(), 5);
     }
 
     private void fillWith(Entity entity, int quantity) {

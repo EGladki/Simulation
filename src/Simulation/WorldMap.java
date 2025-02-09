@@ -2,7 +2,9 @@ package Simulation;
 
 import Simulation.entity.Entity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class WorldMap {
@@ -50,10 +52,6 @@ public class WorldMap {
         throw new IllegalArgumentException("Invalid coordinates");
     }
 
-    public boolean isEntityOnMap(Entity entity) {
-        return entities.containsValue(entity);
-    }
-
     public Coordinates getCoordinates(Entity entity) {
         for (Map.Entry<Coordinates, Entity> entry : entities.entrySet()) {
             if (entry.getValue().equals(entity)) {
@@ -73,6 +71,10 @@ public class WorldMap {
     public boolean isCoordinateValid(Coordinates coordinates) {
         return coordinates.getWidth() > 0 && coordinates.getWidth() <= width &&
                 coordinates.getHeight() > 0 && coordinates.getHeight() <= height;
+    }
+
+    public List<Entity> allEntities () {
+        return new ArrayList<>(entities.values());
     }
 
 
