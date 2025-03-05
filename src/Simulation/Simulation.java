@@ -36,12 +36,13 @@ public class Simulation {
         }
     }
 
-    private void startDefaultSimulation() {
+    private void runSimulation(WorldMap worldMap, boolean isEndless) {
+        this.worldMap = worldMap;
         this.worldMap = worldMapFactory.createWorldMap(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         renderAction.execute(worldMap);
         Thread inputThread = new Thread(this::listenForUserInput);
         inputThread.start();
-        while (running && containsHerbivoresAndPredators(worldMap)) {
+        while (running && (isEndless || containsHerbivoresAndPredators(worldMap))) {
             try {
                 Thread.sleep(200);
             } catch (InterruptedException e) {
@@ -49,42 +50,27 @@ public class Simulation {
             }
             moveAction.execute(worldMap);
             renderAction.execute(worldMap);
+            if (isEndless) {
+                bornAction.execute(worldMap);
+            }
         }
+    }
+
+    private void startDefaultSimulation() {
+        this.worldMap = worldMapFactory.createWorldMap(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        runSimulation(worldMap, false);
     }
 
     private void startCustomSimulation() {
         renderer.inputMapSizeMessage();
         int[] size = getMapSizeInput();
         this.worldMap = worldMapFactory.createWorldMap(size[0], size[1]);
-        renderAction.execute(worldMap);
-        Thread inputThread = new Thread(this::listenForUserInput);
-        inputThread.start();
-        while (running && containsHerbivoresAndPredators(worldMap)) {
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            moveAction.execute(worldMap);
-            renderAction.execute(worldMap);
-        }
+        runSimulation(worldMap, false);
     }
 
     private void startEndlessSimulation() {
         this.worldMap = worldMapFactory.createWorldMap(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-        renderAction.execute(worldMap);
-        Thread inputThread = new Thread(this::listenForUserInput);
-        inputThread.start();
-        while (running) {
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            moveAction.execute(worldMap);
-            renderAction.execute(worldMap);
-            bornAction.execute(worldMap);
-        }
+        runSimulation(worldMap, true);
     }
 
     private void listenForUserInput() {
@@ -147,10 +133,8 @@ public class Simulation {
                 renderer.inputMapSizeMessage();
                 continue;
             }
-
             int width = Integer.parseInt(parts[0]);
             int height = Integer.parseInt(parts[1]);
-
             if (!isValidSize(width) || !isValidSize(height)) {
                 renderer.incorrectInputMessage();
                 renderer.inputMapSizeMessage();
