@@ -2,25 +2,17 @@ package Simulation;
 
 import Simulation.entity.Entity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class WorldMap {
     private final int width;
     private final int height;
-    private static final int DEFAULT_WIDTH = 10;
-    private static final int DEFAULT_HEIGHT = 10;
+
     private final Map<Coordinates, Entity> entities = new HashMap<>();
 
     public WorldMap(int width, int height) {
         this.width = width;
         this.height = height;
-    }
-
-    public WorldMap() {
-        this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
     public int getWidth() {
@@ -31,22 +23,22 @@ public class WorldMap {
         return height;
     }
 
-    public void putEntity(Coordinates coordinates, Entity entity) {
-        if (isCoordinateValid(coordinates)) {
+    public void put(Coordinates coordinates, Entity entity) {
+        if (isValid(coordinates)) {
             entities.put(coordinates, entity);
         } else
             throw new IllegalArgumentException("Invalid coordinates");
     }
 
-    public void deleteEntity(Coordinates coordinates) {
-        if (isCoordinateValid(coordinates)) {
+    public void remove(Coordinates coordinates) {
+        if (isValid(coordinates)) {
             entities.remove(coordinates);
         } else
             throw new IllegalArgumentException("Invalid coordinates");
     }
 
-    public boolean isCellEmpty(Coordinates coordinates) {
-        if (isCoordinateValid(coordinates)) {
+    public boolean isEmpty(Coordinates coordinates) {
+        if (isValid(coordinates)) {
             return !entities.containsKey(coordinates);
         }
         throw new IllegalArgumentException("Invalid coordinates");
@@ -62,21 +54,24 @@ public class WorldMap {
     }
 
     public Entity getEntity(Coordinates coordinates) {
-        if (isCoordinateValid(coordinates)) {
+        if (isValid(coordinates)) {
             return entities.get(coordinates);
         }
         throw new IllegalArgumentException("Invalid coordinates");
     }
 
-    public boolean isCoordinateValid(Coordinates coordinates) {
-        return coordinates.getWidth() > 0 && coordinates.getWidth() <= width &&
-                coordinates.getHeight() > 0 && coordinates.getHeight() <= height;
+    public boolean isValid(Coordinates coordinates) {
+        return coordinates.width() >= 0 && coordinates.width() < width &&
+                coordinates.height() >= 0 && coordinates.height() < height;
     }
 
-    public List<Entity> allEntities () {
+    public List<Entity> getAll() {
         return new ArrayList<>(entities.values());
     }
 
+    public boolean contains(Entity entity) {
+        return entities.containsValue(entity);
+    }
 
 }
 

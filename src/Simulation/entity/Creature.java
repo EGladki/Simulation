@@ -1,27 +1,51 @@
 package Simulation.entity;
 
-import Simulation.Actions.BFS;
+import Simulation.BFS;
 import Simulation.Coordinates;
 import Simulation.WorldMap;
 
-import java.util.List;
-
 public abstract class Creature extends Entity {
-    private int speed;
     private int hp;
+    private final int speed;
 
-    public void makeMove(WorldMap worldMap) {
-        BFS bfs = new BFS();
-        List<Coordinates> pathToFood = bfs.findPathToFood(worldMap, this);
-        if (!pathToFood.isEmpty()) {
-            worldMap.putEntity(pathToFood.get(1), this);
-            worldMap.deleteEntity(pathToFood.get(0));
+    public Creature(int hp, int speed) {
+        this.hp = hp;
+        this.speed = speed;
+    }
+
+    public int getHp() {
+        return hp;
+    }
+
+    public abstract int getDefaultHp();
+
+    public abstract void makeMove(WorldMap worldMap, BFS bfs);
+
+    public abstract boolean isEdible(Entity entity);
+
+    protected void takeDamageFromAttack(int damage, WorldMap worldMap) {
+        this.hp -= damage;
+        if (this.hp <= 0) {
+            die(worldMap);
         }
     }
 
-    public void eat() {
+    protected void takeDamageFromHunger(WorldMap worldMap) {
+        this.hp -= 1;
+        if (this.hp <= 0) {
+            die(worldMap);
+        }
     }
 
-    public abstract boolean isFoodFor(Entity entity);
+    private void die(WorldMap worldMap) {
+        Coordinates coordinates = worldMap.getCoordinates(this);
+        worldMap.remove(coordinates);
+    }
+
+    protected void heal() {
+        if (this.getHp() < getDefaultHp()) {
+            this.hp += 1;
+        }
+    }
 
 }
