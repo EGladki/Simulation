@@ -74,5 +74,4 @@ public class BFS {
         return ((Creature) entity).isEdible(targetEntity);
     }
 
-
 }

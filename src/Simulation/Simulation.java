@@ -137,12 +137,12 @@ public class Simulation {
         while (true) {
             String input = scanner.nextLine();
             String[] parts = input.split(" ");
-            if (parts.length != 2){
+            if (parts.length != 2) {
                 renderer.incorrectInputMessage();
                 renderer.inputMapSizeMessage();
                 continue;
             }
-            if (!isInteger(parts[0]) || !isInteger(parts[1])){
+            if (!isInteger(parts[0]) || !isInteger(parts[1])) {
                 renderer.incorrectInputMessage();
                 renderer.inputMapSizeMessage();
                 continue;
