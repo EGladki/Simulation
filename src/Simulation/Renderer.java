@@ -31,7 +31,6 @@ public class Renderer {
             }
             System.out.println(line);
         }
-        exitMessage();
         System.out.println();
     }
 
@@ -59,38 +58,6 @@ public class Renderer {
             }
         }
         return RESET;
-    }
-
-    public void welcomeMessage() {
-        System.out.println("""
-                Welcome to Simulation!
-                Predators hunting for herbivores, herbivores searching for grass.
-                Predators moves 2 cells at turn, herbivores moves 1 cell.
-                Herbivore eats grass by stepping on cell containing it. When herbivore eat grass - it heals.
-                Predators can attack herbivores and deal them damage. After successful attack predator heals.
-                At the end of turn predators take damage from hunger.
-                Creatures are highlighted based on their life points.
-                """);
-    }
-
-    public void inputModeMessage() {
-        System.out.println("""
-                Please enter number and choose simulation mode:
-                1 - start simulation with default settings (10x10 map, ends when one type of creature remains)
-                2 - start simulation with custom map (custom map size, ends when one type of creature remains)
-                3 - start endless simulation (10x10 map, new creatures are born in process, simulation never ends)""");
-    }
-
-    public void inputMapSizeMessage() {
-        System.out.println("Enter two numbers from 10 to 30 separated by a space. 1st number - width, 2nd number - height");
-    }
-
-    public void exitMessage() {
-        System.out.println("1 - exit from simulation");
-    }
-
-    public void incorrectInputMessage() {
-        System.out.println("Incorrect input");
     }
 
 }

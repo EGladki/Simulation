@@ -1,6 +1,6 @@
 package Simulation;
 
 
-public record Coordinates (int width, int height) {
+public record Coordinates(int width, int height) {
 
 }

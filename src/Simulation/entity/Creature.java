@@ -6,11 +6,9 @@ import Simulation.WorldMap;
 
 public abstract class Creature extends Entity {
     private int hp;
-    private final int speed;
 
     public Creature(int hp, int speed) {
         this.hp = hp;
-        this.speed = speed;
     }
 
     public int getHp() {

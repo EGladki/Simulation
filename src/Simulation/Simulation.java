@@ -7,32 +7,29 @@ import Simulation.entity.Predator;
 
 import java.util.Scanner;
 
+import static Simulation.Menu.*;
 import static Simulation.WorldMapFactory.DEFAULT_HEIGHT;
 import static Simulation.WorldMapFactory.DEFAULT_WIDTH;
 
 public class Simulation {
-    private static final int DEFAULT_SETTINGS = 1;
-    private static final int CUSTOM_SETTINGS = 2;
-    private static final int ENDLESS_SIMULATION = 3;
-    private static final int MAX_SIZE = 25;
-    private static final int EXIT = 1;
+
     private final Scanner scanner = new Scanner(System.in);
     private WorldMap worldMap;
     private final WorldMapFactory worldMapFactory = new WorldMapFactory();
-    private final Renderer renderer = new Renderer();
+    private final Menu menu = new Menu();
     private final Actions moveAction = new MoveAction();
     private final Actions renderAction = new RenderAction();
     private final Actions bornAction = new BornAction();
     private volatile boolean running = true;
+    private volatile boolean pause = false;
 
     public void start() {
-        renderer.welcomeMessage();
-        renderer.inputModeMessage();
-        int mode = getModeInput();
+        int mode = menu.start();
         switch (mode) {
             case DEFAULT_SETTINGS -> startDefaultSimulation();
             case CUSTOM_SETTINGS -> startCustomSimulation();
             case ENDLESS_SIMULATION -> startEndlessSimulation();
+            case CUSTOM_ENDLESS_SIMULATION -> startCustomEndlessSimulation();
         }
     }
 
@@ -43,13 +40,26 @@ public class Simulation {
         Thread inputThread = new Thread(this::listenForUserInput);
         inputThread.start();
         while (running && (isEndless || containsHerbivoresAndPredators(worldMap))) {
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            synchronized (this) {
+                while (pause) {
+                    try {
+                        wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException("Exception from pause");
+                    }
+                }
             }
+
+            try {
+                Thread.sleep(800);
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Exception from sleep");
+            }
+
             moveAction.execute(worldMap);
             renderAction.execute(worldMap);
+            menu.pauseResumeMessage();
+            menu.exitMessage();
             if (isEndless) {
                 bornAction.execute(worldMap);
             }
@@ -62,8 +72,8 @@ public class Simulation {
     }
 
     private void startCustomSimulation() {
-        renderer.inputMapSizeMessage();
-        int[] size = getMapSizeInput();
+        menu.inputMapSizeMessage();
+        int[] size = menu.getMapSizeInput();
         this.worldMap = worldMapFactory.createWorldMap(size[0], size[1]);
         runSimulation(worldMap, false);
     }
@@ -73,84 +83,36 @@ public class Simulation {
         runSimulation(worldMap, true);
     }
 
+    private void startCustomEndlessSimulation() {
+        menu.inputMapSizeMessage();
+        int[] size = menu.getMapSizeInput();
+        this.worldMap = worldMapFactory.createWorldMap(size[0], size[1]);
+        runSimulation(worldMap, true);
+    }
+
     private void listenForUserInput() {
         while (running) {
             String input = scanner.nextLine();
-            while (!isInteger(input)) {
-                renderer.incorrectInputMessage();
+            while (!menu.isInteger(input)) {
+                menu.incorrectInputMessage();
                 input = scanner.nextLine();
             }
-            if (Integer.parseInt(input) == EXIT) {
+            int command = Integer.parseInt(input);
+            if (command == Menu.EXIT) {
                 running = false;
                 break;
+            } else if (command == PAUSE) {
+                synchronized (this) {
+                    pause = !pause;
+                    if (!pause) {
+                        notifyAll();
+                    }
+                }
             } else {
-                renderer.incorrectInputMessage();
+                menu.incorrectInputMessage();
             }
         }
         scanner.close();
-    }
-
-    private boolean isInteger(String input) {
-        try {
-            Integer.parseInt(input);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
-
-    private int getModeInput() {
-        String input = scanner.nextLine();
-        while (!isInteger(input) || !isValidMode(input)) {
-            renderer.incorrectInputMessage();
-            input = scanner.nextLine();
-        }
-        switch (Integer.parseInt(input)) {
-            case DEFAULT_SETTINGS -> {
-                return DEFAULT_SETTINGS;
-            }
-            case CUSTOM_SETTINGS -> {
-                return CUSTOM_SETTINGS;
-            }
-            case ENDLESS_SIMULATION -> {
-                return ENDLESS_SIMULATION;
-            }
-        }
-        return 0;
-    }
-
-    private int[] getMapSizeInput() {
-        while (true) {
-            String input = scanner.nextLine();
-            String[] parts = input.split(" ");
-            if (parts.length != 2) {
-                renderer.incorrectInputMessage();
-                renderer.inputMapSizeMessage();
-                continue;
-            }
-            if (!isInteger(parts[0]) || !isInteger(parts[1])) {
-                renderer.incorrectInputMessage();
-                renderer.inputMapSizeMessage();
-                continue;
-            }
-            int width = Integer.parseInt(parts[0]);
-            int height = Integer.parseInt(parts[1]);
-            if (!isValidSize(width) || !isValidSize(height)) {
-                renderer.incorrectInputMessage();
-                renderer.inputMapSizeMessage();
-                continue;
-            }
-            return new int[]{width, height};
-        }
-    }
-
-    private boolean isValidMode(String s) {
-        int input = Integer.parseInt(s);
-        return input >= DEFAULT_SETTINGS && input <= ENDLESS_SIMULATION;
-    }
-
-    private boolean isValidSize(int size) {
-        return size >= DEFAULT_HEIGHT && size <= MAX_SIZE;
     }
 
     private boolean containsHerbivoresAndPredators(WorldMap worldMap) {
